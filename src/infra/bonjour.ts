@@ -2,6 +2,7 @@ import os from "node:os";
 
 import { logDebug, logWarn } from "../logger.js";
 import { getLogger } from "../logging.js";
+import { registerUnhandledRejectionHandler } from "./unhandled-rejections.js";
 
 export type GatewayBonjourAdvertiser = {
   stop: () => Promise<void>;
@@ -143,6 +144,20 @@ export async function startGatewayBonjourAdvertiser(
     });
   }
 
+  let unhandledRejectionHandler: (() => void) | undefined;
+  if (services.length > 0) {
+    unhandledRejectionHandler = registerUnhandledRejectionHandler((reason) => {
+      const message = formatBonjourError(reason).toUpperCase();
+      if (!message.includes("CIAO ANNOUNCEMENT CANCELLED")) {
+        return false;
+      }
+      logDebug(
+        `bonjour: ignoring unhandled ciao rejection: ${formatBonjourError(reason)}`,
+      );
+      return true;
+    });
+  }
+
   logDebug(
     `bonjour: starting (hostname=${hostname}, instance=${JSON.stringify(
       safeServiceName(instanceName),
@@ -250,6 +265,7 @@ export async function startGatewayBonjourAdvertiser(
           /* ignore */
         }
       }
+      unhandledRejectionHandler?.();
       try {
         await responder.shutdown();
       } catch {

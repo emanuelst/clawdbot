@@ -89,6 +89,7 @@
 - CLI: auto-migrate legacy config entries on command start (same behavior as gateway startup).
 - Gateway: add `gateway stop|restart` helpers and surface launchd/systemd/schtasks stop hints when the gateway is already running.
 - Cron/Heartbeat: enqueue cron system events in the resolved main session so heartbeats drain the right queue. Thanks @zats for PR #350.
+- Bonjour: ignore ciao announcement cancellation rejections to avoid crashing the gateway.
 - Gateway: honor `agent.timeoutSeconds` for `chat.send` and share timeout defaults across chat/cron/auto-reply. Thanks @MSch for PR #229.
 - Auth: prioritize OAuth profiles but fall back to API keys when refresh fails; stored profiles now load without explicit auth order.
 - Auth/CLI: normalize provider ids and Z.AI aliases across auth profile ordering and models list/status. Thanks @mneves75 for PR #303.
